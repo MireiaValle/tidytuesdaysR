@@ -1,0 +1,65 @@
+---
+title: "week 7 2020"
+author: "Mireia Valle"
+date: "11/2/2020"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+## Loading the data
+```{r}
+hotels <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-02-11/hotels.csv')
+```
+## Loading libraries
+```{r}
+# For general stuff:
+library(tidyverse)
+library(janitor)
+library(lubridate)
+library(here)
+library(paletteer)
+
+# For ts stuff: 
+library(tsibble)
+library(fable)
+library(fabletools)
+library(feasts)
+library(forecast)
+```
+## Looking into the data
+```{r}
+head(hotels)
+summary(hotels)
+```
+## Clean up the data
+```{r}
+hotels_clean <- hotels %>% 
+  mutate(hotel = str_to_lower(hotel)) %>% 
+  mutate(market_segment = str_to_lower(market_segment)) %>% 
+  mutate(distribution_channel = str_to_lower(distribution_channel)) %>% 
+  mutate(deposit_type = str_to_lower(deposit_type)) %>% 
+  mutate(customer_type = str_to_lower(customer_type)) %>% 
+  mutate(reservation_status = str_to_lower(reservation_status))
+```
+## Wrangling the data
+```{r}
+hotels_date <- hotels_clean %>% 
+  mutate(month_sep = yearmonth(reservation_status_date))  #coerce to tsibble `yearmonth` format
+```
+## Make a ggplot
+
+```{r}
+hotels_date_gg <- ggplot(data = hotels_date, aes(x = month_sep, y = is_canceled, group = hotel)) +
+  geom_line(aes(color = hotel)) +
+  theme_minimal() +
+  scale_y_continuous(limits = c(0, 5))
+
+hotels_date_gg
+```
+
+
